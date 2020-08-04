@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+    <!--jquery-->
+    <!-- slim/jquery, 3.1.0 윗 버전에서 ajax가 작동하지 않는 오류 확인 -->
+    <!-- Bootstrap의 CDN을 copy&paste 하되 Line 8의 버전만 3.1.0으로 수정하세요 -->
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Teamate Simple Page</h2>
+
+      <form action="#">
+        <!--유저추가-->
+        <div id="add-result">&nbsp;</div>
+        <div class="input-group mb-1">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Mate name</span>
+          </div>
+          <input
+            type="text"
+            id="add-name"
+            class="form-control"
+            value="John"
+            aria-describedby="button-addon2"
+          />
+          <div class="input-group-append">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="add-button"
+            >
+              유저 추가
+            </button>
+          </div>
+        </div>
+        <!--점수 추가-->
+        <div id="addr-result">&nbsp;</div>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Mate name</span>
+          </div>
+          <input type="text" id="addr-name" value="John" class="form-control" />
+          <div class="input-group-prepend">
+            <span class="input-group-text">Project Name</span>
+          </div>
+          <input
+            type="text"
+            id="addr-project"
+            value="project"
+            class="form-control"
+          />
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01"
+              >Options</label
+            >
+          </div>
+          <select class="custom-select" id="addr-score">
+            <option selected>5</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+          <div class="input-group-append">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="addr-button"
+            >
+              점수 추가
+            </button>
+          </div>
+        </div>
+        <!--유저 확인-->
+        <div id="read-result">&nbsp;</div>
+        <div class="input-group mb-1">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Mate name</span>
+          </div>
+          <input
+            type="text"
+            id="read-name"
+            class="form-control"
+            value="John"
+            aria-describedby="button-addon2"
+          />
+          <div class="input-group-append">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="read-button"
+            >
+              점수 확인
+            </button>
+          </div>
+          <table class="table">
+            <tbody id="table"></tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+  </body>
+
+  <script>
+    $("#add-button").click(() => {
+      const name = $("#add-name").val();
+      const url = "/mate";
+
+      $.post(url, { name: name }, (data, status) => {
+        if (status == "success") {
+          //$('#add-result').append(data)
+
+          $("#add-result").append(
+            "<div id='success' class='alert alert-success'>메이트 추가를 성공했습니다!</div>"
+          );
+        }
+      });
+    });
+
+    $("#addr-button").click(() => {
+      const n = $("#addr-name").val();
+      const p = $("#addr-project").val();
+      const s = $("#addr-score").val();
+      const url = "/score";
+
+      $.post(url, { name: n, project: p, score: s }, (data, status) => {
+        // http 상태 코드가 200 이라면
+        if (status == "success") {
+          //성공했다는 alert창을 띄움
+          $("#addr-result").append(
+            "<div id='success' class='alert alert-success'>점수추가를 성공했습니다!</div>"
+          );
+        }
+      });
+    });
+
+    $("#read-button").click(() => {
+      const value = $("#read-name").val();
+      const url = "/mate/" + value;
+      $.get(url, (data, status) => {
+        //조회했을 때 값이 null이 아니면 (일치하는 값이 존재한다면)
+        if (status != null) {
+          $("#read-result").append(
+            "<div id='success' class='alert alert-success'>조회를 성공했습니다!</div>"
+          );
+
+          //stringfy는 json 객체를 string으로, parse는 string을 json객체로 변환시켜줌
+          const test = JSON.stringify(data);
+          const parseData = JSON.parse(test);
+          console.log(test);
+
+          $("#table").empty();
+
+          $("#table").append(
+            "<tr><th scope='row'>average</th><td>" +
+              parseData.average +
+              "</td></tr>"
+          );
+          for (var i = 0; i < parseData.rartes.length; i++) {
+            $("#table").append(
+              "<tr><th scope='row'>project title</th><td>" +
+                parseData.rartes[i].projecttitle +
+                "</td></tr>"
+            );
+            $("#table").append(
+              "<tr><th scope='row'>score</th><td>" +
+                parseData.rartes[i].score +
+                "</td></tr>"
+            );
+          }
+        }
+      });
+    });
+  </script>
+</html>

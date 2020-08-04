@@ -1,3 +1,5 @@
 network/config/*
 network/crypto-config
 network/docker-compose.yml
+application/node_modules
+application/.vscode
